@@ -1,25 +1,77 @@
 <?php 
 require ('koneksi.php');
-
-if (isset($_POST['register'])) {
+session_start();
+if($_SERVER['REQUEST_METHOD'] == 'POST'){
+  // var_dump($_SESSION);
+  // die;
+  // $data = json_decode(file_get_contents('php://input'), true);
+  // var_dump($data);
+  // die();
+  if(!isset($_SESSION['samepage'])){
+    $data = json_decode(file_get_contents('php://input'), true);
+    $userFN = $data['nama_depan'];
+    $userLN = $data['nama_belakang'];
+    $userAsalInstitusi = $data['asal_institusi'];
+    $userKegiatan = $data['kegiatan'];
+    $userEmail = $data['email'];
+    $userPass = $data['password'];
+  }else{
   $userFN = $_POST['txt_nama_depan'];
   $userLN = $_POST['txt_nama_belakang'];
   $userAsalInstitusi = $_POST['txt_asal_institusi'];
   $userKegiatan = $_POST['txt_kegiatan'];
   $userEmail = $_POST['txt_email'];
   $userPass = $_POST['txt_password'];
+  }
 
-  if (!empty($_POST['txt_email'])) {
+  if (!empty(trim($userFN)) && !empty(trim($userLN)) && !empty(trim($userAsalInstitusi)) && !empty(trim($userKegiatan)) && !empty(trim($userEmail)) && !empty(trim($userPass))) {
     $query2 = mysqli_query($koneksi, "SELECT * FROM user_detail WHERE email = '$userEmail'");
-    if (mysqli_num_rows($query2)>0) {
+    // var_dump($query2, $userEmail);
+    // die;
+    if (mysqli_num_rows($query2)!=0) {
+      if(!isset($_SESSION['samepage'])){
+          header('Content-type: application/json');
+          http_response_code(409);
+          // echo json_encode(['nama_depan' => $userFN, 'nama_belakang' => $userLN, 'asal_institusi' => $userAsalInstitusi, 'kegiatan' => $userKegiatan, 'email' => $userEmail, 'password' => $userPass, 'level' => $lvl]);
+          die;
+        }
+
       setcookie("message","Maaf, Email Sudah Pernah Didaftarkan",time()+1);
       header('location:register.php');
+      die;
+
     }else{
-      $query = "INSERT INTO user_detail VALUES ('', '$userFN', '$userLN', '$userAsalInstitusi', '$userKegiatan', '$userEmail', '$userPass', 2)";
+      $query = "INSERT INTO user_detail VALUES (NULL, '$userFN', '$userLN', '$userAsalInstitusi', '$userKegiatan', '$userEmail', '$userPass', 2)";
       $result = mysqli_query($koneksi, $query);
+
+      if(!isset($_SESSION['samepage'])){  
+          header('Content-type: application/json');
+          http_response_code(200);
+          echo json_encode(['nama_depan' => $userFN, 'nama_belakang' => $userLN, 'asal_institusi' => $userAsalInstitusi, 'kegiatan' => $userKegiatan, 'email' => $userEmail, 'password' => $userPass]);
+          die;
+        }
+
+      
       header('location:login.php');
+      die;
     }
-  } 
+  }else{
+    if(!isset($_SESSION['samepage'])){
+          header('Content-type: application/json');
+          http_response_code(400);
+          // echo json_encode(['nama_depan' => $userFN, 'nama_belakang' => $userLN, 'asal_institusi' => $userAsalInstitusi, 'kegiatan' => $userKegiatan, 'email' => $userEmail, 'password' => $userPass, 'level' => $lvl]);
+          die;
+        }
+
+    setcookie("message","Maaf, data yang anda masukkan tidak lengkap",time()+1);
+      header('location:register.php');
+      die;
+  }
+
+
+  
+}else{
+$_SESSION['samepage'] = True;
 }
 ?>
 <!DOCTYPE html>
@@ -62,14 +114,6 @@ if (isset($_POST['register'])) {
     .text-error{
       color: red;
       font-weight: bold;
-    }
-    .iconn{
-      float: right;
-      margin-right: 10px;
-      margin-top: 20px;
-      margin-bottom: -30px;
-      position: relative;
-      z-index: 2;
     }
   </style>
 </head>
@@ -128,13 +172,11 @@ if (isset($_POST['register'])) {
                 </div>
 
                 <div class="form-outline form-white mb-4">
-                  <span class="far fa-eye iconn" id="togglePassword" style="cursor: pointer;"></span>
                   <input type="password" id="typePasswordX" name="txt_password" class="form-control form-control-lg" pattern="(?=.*\d)(?=.*[a-z]).{6,}" title="Password Harus Memiliki 6 Karakter dan Minimal Mengandung Huruf Dan Angka" required />
                   <label class="form-label" for="typePasswordX">Password</label>
                 </div>
 
                 <div class="form-outline form-white mb-4">
-                  <span class="far fa-eye iconn" id="typeTogglePassword" style="cursor: pointer;"></span>
                   <input type="password" id="typeConfirmPassword" class="form-control form-control-lg" />
                   <label class="form-label" for="typeConfirmPassword">Confirm Password</label>
                 </div>
@@ -159,30 +201,6 @@ if (isset($_POST['register'])) {
 <!-- MDB -->
 <script type="text/javascript" src="js/mdb.min.js"></script>
 <!-- Custom scripts -->
-<script>
-    const togglePassword = document.querySelector('#togglePassword');
-    const password = document.querySelector('#typePasswordX');
-
-    togglePassword.addEventListener('click', function (e) {
-    // toggle the type attribute
-      const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-      password.setAttribute('type', type);
-    // toggle the eye slash icon
-      this.classList.toggle('fa-eye-slash');
-    });
-  </script>
-  <script>
-    const togglePassword2 = document.querySelector('#typeTogglePassword');
-    const password2 = document.querySelector('#typeConfirmPassword');
-
-    togglePassword2.addEventListener('click', function (e) {
-    // toggle the type attribute
-      const type = password2.getAttribute('type') === 'password' ? 'text' : 'password';
-      password2.setAttribute('type', type);
-    // toggle the eye slash icon
-      this.classList.toggle('fa-eye-slash');
-    });
-  </script>
 <script>
   function validate(){
 

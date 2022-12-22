@@ -354,7 +354,7 @@ id="sidebar"
   BAGIAN MQTT YANG TERKONEKSI DENGAN MESSAGE BROKER
   -----------------------------------------------------*/
     // Menentuan alamat IP dan PORT message broker
-  var host = "20.20.0.245";
+  var host = "159.223.72.149";
   var port = 9001;
 
     // Konstruktor koneksi antara client dan message broker
