@@ -36,7 +36,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         if(!isset($_SESSION['samepage'])){
           header('Content-type: application/json');
 		      http_response_code(200);
-          echo json_encode(['nama_depan' => $namaDepan, 'nama_belakang' => $namaBelakang, 'asal_institusi' => $asalInstitusi, 'kegiatan' => $kegiatan, 'email' => $logEmail, 'passsword' => $password, 'level' => $lvl]);
+          echo json_encode(['id' => $id, 'nama_depan' => $namaDepan, 'nama_belakang' => $namaBelakang, 'asal_institusi' => $asalInstitusi, 'kegiatan' => $kegiatan, 'email' => $logEmail, 'passsword' => $password, 'level' => $lvl]);
           die;
         }
                 // header('Location: dashboard.php?user_fullname='.urlencode($username));
